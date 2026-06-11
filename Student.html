@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal</title>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="master.css">
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2><i class='bx bxs-graduation'></i> LMS</h2>
+    <a href="Dashboard.html"><i class='bx bxs-dashboard'></i> Dashboard</a>
+    <a href="Admin.html"><i class='bx bxs-shield-quarter'></i> Admin Control</a>
+    <a href="Librarian.html"><i class='bx bxs-book-reader'></i> Librarian</a>
+    <a href="Student.html" class="active"><i class='bx bxs-user-badge'></i> Student Portal</a>
+    <a href="Login.html" style="margin-top: auto;"><i class='bx bxs-log-out-circle'></i> Logout</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar" style="display: block;">
+      <h1>Student Library Portal</h1>
+      <p>Search collection records, reserve study guides, and review personal checkout histories</p>
+      
+      <div class="search-wrapper">
+        <input type="text" class="search-input" placeholder="Search parameters by text title, volume author, or code tags...">
+        <i class='bx bx-search-alt'></i>
+      </div>
+    </div>
+
+    <div class="app-grid">
+    
+    </div>
+  </div>
+<script type="module">
+import { supabase } from './supabase.js';
+
+// Create a variable to hold the catalog in memory
+let allBooks = []; 
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const appGrid = document.querySelector(".app-grid");
+  const searchInput = document.querySelector(".search-input"); // Grab your search bar
+
+  appGrid.innerHTML = '<h3 style="color: var(--dark-cyan); width: 100%;">Loading FocusForge catalog...</h3>';
+
+  try {
+    const { data: books, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('status', 'Available')
+      .order('added_at', { ascending: false });
+
+    if (error) throw error;
+    
+    // Save the fetched books to our memory variable
+    allBooks = books; 
+    
+    // Draw the full grid the first time the page loads
+    renderBooks(allBooks); 
+
+    // --- THE SEARCH BAR LOGIC ---
+    if (searchInput) {
+      searchInput.addEventListener("input", (event) => {
+        const searchTerm = event.target.value.toLowerCase();
+        
+        // Filter the array in memory instantly
+        const filteredBooks = allBooks.filter(book => 
+          book.title.toLowerCase().includes(searchTerm) || 
+          book.author.toLowerCase().includes(searchTerm) ||
+          book.category.toLowerCase().includes(searchTerm)
+        );
+        
+        // Redraw the grid with only the matches
+        renderBooks(filteredBooks);
+      });
+    }
+
+  } catch (error) {
+    console.error("Error fetching catalog:", error.message);
+    appGrid.innerHTML = '<p style="color: red;">Failed to load catalog. Please check your console.</p>';
+  }
+});
+
+// We moved the drawing logic into a reusable helper function
+function renderBooks(booksToDisplay) {
+  const appGrid = document.querySelector(".app-grid");
+  appGrid.innerHTML = ''; 
+
+  if (booksToDisplay.length === 0) {
+    appGrid.innerHTML = '<p>No books match your search parameters.</p>';
+    return;
+  }
+
+  booksToDisplay.forEach(book => {
+    const card = document.createElement("div");
+    card.className = "panel-card";
+    
+    card.innerHTML = `
+      <img src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1000&auto=format&fit=crop" class="book-img" alt="Book Cover">
+      <div class="card-body" style="padding-top: 20px;">
+        <h3>${book.title}</h3>
+        <p style="margin-bottom: 5px;"><strong>Author:</strong> ${book.author}</p>
+        <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px;"><strong>Category:</strong> ${book.category}</p>
+        <button class="action-btn" onclick="reserveBook('${book.id}', '${book.title}')">
+          Reserve Book <i class='bx bx-bookmark-plus'></i>
+        </button>
+      </div>
+    `;
+    appGrid.appendChild(card);
+  });
+}
+
+window.reserveBook = async function(bookId, bookTitle) {
+  try {
+    // 1. Verify exactly which student is currently logged in
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      alert("Error: You must be logged in to reserve materials.");
+      return;
+    }
+
+    // 2. Insert the reservation request into our new checkouts table
+    const { error: dbError } = await supabase
+      .from('checkouts')
+      .insert([
+        { 
+          book_id: bookId, 
+          book_title: bookTitle,
+          student_id: user.id 
+        }
+      ]);
+
+    if (dbError) throw dbError;
+
+    // 3. Confirm the success!
+    alert(`Success! "${bookTitle}" has been placed in your reservation queue.`);
+    
+  } catch (error) {
+    console.error("Reservation Error:", error.message);
+    alert("Failed to reserve the book. Check the console.");
+  }
+};
+
+  </script>
+</body>
+</html>

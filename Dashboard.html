@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS Dashboard</title>
+  <!-- Boxicons CDN for modern iconography -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <style>
+    /* Premium Poppins Font & Custom Variable Theme Setup */
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+    
+    :root {
+      --dark-cyan: #005f73;
+      --electric-cyan: #00adb5;
+      --bg-gradient: linear-gradient(135deg, #f4f7f6, #e9f1f2);
+      --card-bg: #ffffff;
+      --text-dark: #222831;
+      --text-muted: #62727b;
+      --glow-shadow: 0 8px 30px rgba(0, 95, 115, 0.08);
+      --hover-glow: 0 15px 35px rgba(0, 173, 181, 0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* Epic Interactive Sidebar Layout */
+    .sidebar {
+      width: 260px;
+      height: 100vh;
+      background: linear-gradient(180deg, var(--dark-cyan), #003f4d);
+      position: fixed;
+      color: white;
+      padding: 35px 20px;
+      box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 40px;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .sidebar h2 i {
+      font-size: 32px;
+      color: var(--electric-cyan);
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      padding: 14px 20px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Dynamic Sidebar Link Hovers */
+    .sidebar a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      transform: translateX(8px);
+      box-shadow: inset 4px 0 0 var(--electric-cyan);
+    }
+
+    .sidebar a i {
+      font-size: 22px;
+    }
+
+    /* Main Area Adjustments */
+    .main {
+      margin-left: 260px;
+      padding: 40px;
+    }
+
+    /* Modern Topbar Panel */
+    .topbar {
+      background: var(--card-bg);
+      padding: 20px 35px;
+      border-radius: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--glow-shadow);
+    }
+
+    .topbar h1 {
+      font-size: 26px;
+      color: var(--dark-cyan);
+      font-weight: 700;
+    }
+
+    .topbar p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .profile img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid var(--electric-cyan);
+      object-fit: cover;
+    }
+
+    .profile h3 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .profile p {
+      font-size: 12px;
+    }
+
+    /* Interactive Stats Dashboard Grid */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin-top: 35px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: var(--glow-shadow);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Glowing Card Hover Mechanics */
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--hover-glow);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--dark-cyan), var(--electric-cyan));
+    }
+
+    .card-info h1 {
+      color: var(--dark-cyan);
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .card-info p {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    /* Repositioned Card Actions & Epic Glow Buttons */
+    .card-action {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 15px;
+    }
+
+    .btn-action {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(0, 95, 115, 0.1);
+      color: var(--dark-cyan);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-action:hover {
+      background: var(--dark-cyan);
+      color: #white;
+      box-shadow: 0 5px 15px rgba(0, 95, 115, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Recent Table Showcase Adjustments */
+    .recent {
+      margin-top: 40px;
+      background: var(--card-bg);
+      padding: 35px;
+      border-radius: 24px;
+      box-shadow: var(--glow-shadow);
+    }
+
+    .recent h2 {
+      font-size: 20px;
+      color: var(--dark-cyan);
+      margin-bottom: 25px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+
+    table th {
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 15px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    table td {
+      padding: 18px 15px;
+      background: #fdfdfd;
+      border-top: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+      color: var(--text-dark);
+      transition: all 0.3s ease;
+    }
+
+    table tr td:first-child {
+      border-left: 1px solid #f0f0f0;
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+      font-weight: 600;
+    }
+
+    table tr td:last-child {
+      border-right: 1px solid #f0f0f0;
+      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+
+    /* Row Hover Effect */
+    table tr:hover td {
+      background: rgba(0, 173, 181, 0.04);
+      border-color: rgba(0, 173, 181, 0.2);
+    }
+
+    /* Contextual Badges for Table Status */
+    .badge {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .badge.issued { background: rgba(0, 95, 115, 0.1); color: var(--dark-cyan); }
+    .badge.returned { background: rgba(46, 125, 50, 0.1); color: #2e7d32; }
+    .badge.late { background: rgba(198, 40, 40, 0.1); color: #c62828; }
+
+  </style>
+</head>
+<body>
+
+<!-- Left Navigation Sidebar Panel -->
+<div class="sidebar">
+  <h2><i class='bx bxs-graduation'></i> LMS</h2>
+  <a href="index.html"><i class='bx bxs-home-alt-2'></i> Home</a>
+  <a href="admin.html"><i class='bx bxs-dashboard'></i> Admin Control</a>
+  <a href="librarian.html"><i class='bx bxs-book-reader'></i> Librarian</a>
+  <a href="student.html"><i class='bx bxs-user-badge'></i> Student Portal</a>
+  <a href="login.html" style="margin-top: auto;"><i class='bx bxs-log-out-circle'></i> Logout</a>
+</div>
+
+<!-- Main Section Panel Content -->
+<div class="main">
+
+  <!-- Clean Header Top Bar Structure -->
+  <div class="topbar">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Welcome back to the Library Management System</p>
+    </div>
+
+    <div class="profile">
+      <img src="photo/image22.jpg" alt="profile">
+      <div>
+        <h3>Ashenafi</h3>
+        <p>System Administrator</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Responsive Statistics Grid Section -->
+  <div class="stats">
+
+    <div class="card">
+      <div class="card-info">
+        <h1>12,540</h1>
+        <p>Total Book Records</p>
+      </div>
+      <div class="card-action">
+        <button class="btn-action">View All <i class='bx bx-right-arrow-alt'></i></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-info">
+        <h1>2,340</h1>
+        <p>Active Borrowed Logs</p>
+      </div>
+      <div class="card-action">
+        <button class="btn-action">Track <i class='bx bx-right-arrow-alt'></i></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-info">
+        <h1>1,120</h1>
+        <p>Registered Members</p>
+      </div>
+      <div class="card-action">
+        <button class="btn-action">Manage <i class='bx bx-right-arrow-alt'></i></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-info">
+        <h1>84</h1>
+        <p>Overdue System Fines</p>
+      </div>
+      <div class="card-action">
+        <button class="btn-action" style="color:#c62828; background:rgba(198, 40, 40, 0.1);">Review <i class='bx bx-right-arrow-alt'></i></button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Re-structured Activity Table Area -->
+  <div class="recent">
+    <h2><i class='bx bx-history'></i> Recent Circulation Operations</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Student/Member Name</th>
+          <th>Book Title</th>
+          <th>Operation Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Aymen</td>
+          <td>Introduction to AI</td>
+          <td><span class="badge issued">Issued</span></td>
+        </tr>
+        <tr>
+          <td>Nahom</td>
+          <td>Python Basics</td>
+          <td><span class="badge returned">Returned</span></td>
+        </tr>
+        <tr>
+          <td>Meryem</td>
+          <td>Cybersecurity 101</td>
+          <td><span class="badge late">Late Alert</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+</body>
+</html>

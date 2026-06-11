@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Register Form</title>
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;600;700;800;900&display=swap");
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Poppins",sans-serif;
+}
+
+body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    background: url("photo/Pnn.jpg");
+    background-repeat:no-repeat;
+    background-size:cover;
+    background-position:center;
+}
+
+.wrapper{
+    width:420px;
+    background:transparent;
+    border:2px solid rgba(255,255,255,.2);
+    backdrop-filter:blur(15px);
+    color:#fff;
+    border-radius:16px;
+    padding:30px 40px;
+}
+
+.wrapper h1{
+    text-align:center;
+    font-size:32px;
+}
+
+.input-box{
+    position:relative;
+    width:100%;
+    height:50px;
+    margin:20px 0;
+}
+
+.input-box input{
+    width:100%;
+    height:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    border:2px solid rgba(255,255,255,.2);
+    border-radius:40px;
+    color:#fff;
+    font-size:16px;
+    padding:20px 45px 20px 20px;
+}
+
+.input-box input::placeholder{
+    color:#fff;
+}
+
+.input-box i{
+    position:absolute;
+    right:20px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:22px;
+}
+
+.btn{
+    width:100%;
+    height:45px;
+    border:none;
+    outline:none;
+    border-radius:40px;
+    background:#fff;
+    color:#333;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.login-link{
+    text-align:center;
+    margin-top:20px;
+    font-size:14px;
+}
+
+.login-link a{
+    color:#fff;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.login-link a:hover{
+    text-decoration:underline;
+}
+
+</style>
+</head>
+
+<body>
+    <div class="wrapper">
+<form id="register-form">
+  <h1>Register</h1>
+
+  <div class="input-box">
+    <input type="text" id="reg-name" placeholder="Full Name" required>
+    <i class='bx bxs-user'></i>
+  </div>
+
+  <div class="input-box">
+    <input type="email" id="reg-email" placeholder="Email" required>
+    <i class='bx bxs-envelope'></i>
+  </div>
+
+  <div class="input-box">
+    <input type="password" id="reg-password" placeholder="Password" required>
+    <i class='bx bxs-lock-alt'></i>
+  </div>
+
+  <div class="input-box" style="margin-bottom: 30px;">
+    <select id="reg-role" style="width: 100%; height: 100%; background: transparent ; border: 2px solid rgba(255,255,255,.2); border-radius: 40px; color: #fff; font-size: 16px; padding: 0 45px 0 20px; outline: none; appearance: none;">
+      
+      <option value="" style="color: black;">Select User Type</option>
+      <option value="Student" style="color: black;">Student</option>
+      <option value="Librarian" style="color: black;">Librarian</option>
+      <option value="Admin" style="color: black;">Admin</option>
+      
+    </select>
+    <i class='bx bxs-briefcase'></i>
+  </div>
+
+  <button type="submit" id="register-submit-btn" class="btn">Register</button>
+
+  <div class="login-link">
+    <p>Already have an account? <a href="Login.html">Login</a></p>
+  </div>
+</form>
+
+<script type="module" >
+  // register.js - Handles new user sign-ups and role assignment via Supabase
+import { supabase } from './supabase.js';
+
+document.addEventListener("DOMContentLoaded", () => {
+  const registerBtn = document.getElementById("register-submit-btn");
+
+  if (registerBtn) {
+    registerBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+
+      const fullName = document.getElementById("reg-name").value;
+      const email = document.getElementById("reg-email").value;
+      const password = document.getElementById("reg-password").value;
+      const role = document.getElementById("reg-role").value;
+
+      if (!fullName || !email || !password || role === "Select User Type") {
+        alert("Please fill in all fields and select a role.");
+        return;
+      }
+
+      try {
+        registerBtn.innerHTML = "Creating Account...";
+
+        // 1. Sign up the user in Supabase Auth
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: email,
+          password: password,
+        });
+
+        if (authError) throw authError;
+
+        // 2. Insert their specific Role and Name into the users public table
+        const { error: dbError } = await supabase
+          .from('users')
+          .insert([
+            { 
+              id: authData.user.id, // Links directly to their secure Auth ID
+              full_name: fullName, 
+              email: email, 
+              role: role 
+            }
+          ]);
+
+        if (dbError) throw dbError;
+
+        alert("Account created successfully! Welcome to FocusForge.");
+        window.location.href = "Login.html";
+
+      } catch (error) {
+        console.error("Registration Error:", error.message);
+        alert("Error: " + error.message);
+        registerBtn.innerHTML = "Register";
+      }
+    });
+  }
+});
+</script>
+</div>
+</body>
+</html>

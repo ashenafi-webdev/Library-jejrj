@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <!-- Link or paste the Master CSS style block here -->
+  <link rel="stylesheet" href="master.css"> 
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2><i class='bx bxs-graduation'></i> LMS</h2>
+    <a href="Dashboard.html"><i class='bx bxs-dashboard'></i> Dashboard</a>
+    <a href="Admin.html" class="active"><i class='bx bxs-shield-quarter'></i> Admin Control</a>
+    <a href="Librarian.html"><i class='bx bxs-book-reader'></i> Librarian</a>
+    <a href="Student.html"><i class='bx bxs-user-badge'></i> Student Portal</a>
+    <a href="Login.html" style="margin-top: auto;"><i class='bx bxs-log-out-circle'></i> Logout</a>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1>Admin Control Panel</h1>
+        <p>Manage global parameters, user profiles, and library rules</p>
+      </div>
+    </div>
+
+    <div class="app-grid">
+      <div class="panel-card">
+        <div class="card-body">
+          <div class="card-icon"><i class='bx bxs-user-account'></i></div>
+          <h3>User Management</h3>
+          <p>Register new system entities, authorize distinct permission roles, or deactivate member forms securely.</p>
+          <button class="action-btn">Manage Users <i class='bx bx-right-arrow-alt'></i></button>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="card-body">
+          <div class="card-icon"><i class='bx bxs-book-add'></i></div>
+          <h3>Book Catalog</h3>
+          <p>Insert alternative catalog publications, configure digital files, and control broad system records.</p>
+          <button class="action-btn">Manage Books <i class='bx bx-right-arrow-alt'></i></button>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="card-body">
+          <div class="card-icon"><i class='bx bxs-file-blank'></i></div>
+          <h3>System Reports</h3>
+          <p>Review comprehensive analytical calculations on checkouts, fines, and student account actions.</p>
+          <button class="action-btn">View Reports <i class='bx bx-right-arrow-alt'></i></button>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="card-body">
+          <div class="card-icon"><i class='bx bxs-wrench'></i></div>
+          <h3>System Settings</h3>
+          <p>Modify interface structural values, configure late fine formulas, and verify security keys.</p>
+          <button class="action-btn">Open Settings <i class='bx bx-right-arrow-alt'></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="recent" style="margin-top: 40px; background: var(--card-bg); padding: 35px; border-radius: 24px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color);">
+      <h2 style="color: var(--dark-cyan); margin-bottom: 20px; font-size: 20px; display: flex; align-items: center; gap: 10px;">
+        <i class='bx bxs-book-add'></i> Add New Book to Catalog
+      </h2>
+      
+      <form id="add-book-form" style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <input type="text" id="book-title" placeholder="Book Title (e.g., Physics Fundamentals)" class="search-input" style="flex: 1; min-width: 250px;" required>
+        
+        <input type="text" id="book-author" placeholder="Author Name" class="search-input" style="flex: 1; min-width: 200px;" required>
+        
+        <select id="book-category" class="search-input" style="flex: 1; min-width: 200px;" required>
+          <option value="">Select Category</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Physical Sciences">Physical Sciences</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="Fiction">Fiction</option>
+        </select>
+        
+        <button type="submit" id="save-book-btn" class="action-btn" style="margin-top: 0; flex: 0 1 150px;">Save Book</button>
+      </form>
+    </div>
+
+  </div> 
+  <script type="module">
+import { supabase } from './supabase.js';
+
+document.addEventListener("DOMContentLoaded", () => {
+  const addBookForm = document.getElementById("add-book-form");
+  const saveBtn = document.getElementById("save-book-btn");
+
+  if (addBookForm) {
+    addBookForm.addEventListener("submit", async (event) => {
+      event.preventDefault(); 
+
+      const title = document.getElementById("book-title").value;
+      const author = document.getElementById("book-author").value;
+      const category = document.getElementById("book-category").value;
+
+      try {
+        saveBtn.innerHTML = "Saving to Cloud...";
+        
+        // Insert the new book into the Supabase 'books' table
+        const { error } = await supabase
+          .from('books')
+          .insert([
+            {
+              title: title,
+              author: author,
+              category: category,
+              status: "Available"
+            }
+          ]);
+
+        if (error) throw error;
+
+        alert(`Success! "${title}" has been securely added to the FocusForge catalog.`);
+        addBookForm.reset();
+        saveBtn.innerHTML = "Save Book";
+
+      } catch (error) {
+        console.error("Database Error:", error.message);
+        alert("Failed to save the book. Check the console for details.");
+        saveBtn.innerHTML = "Save Book";
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>
